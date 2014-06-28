@@ -26,7 +26,7 @@ class BobBuilder()(implicit val bot: Bot) extends Behavior {
       build <- bot.executeTask(BuildingService.buildBuildingV2(contract.building, blueprint))
       goBackToHall <- bot.executeTask(LocationService.walkTo(Coordinate(hall.x, hall.y)))
       alertHall <- bot.executeTask(BuildingService.alertTownHall(contract.building, contract.bot))
-      alertBot <- bot.executeTask(BuildingService.alertNPC(contract.bot.ref, blueprint.door))
+      alertBot <- bot.executeTask(BuildingService.alertNPC(contract.bot, blueprint.door))
       exitHall <- bot.executeTask(LocationService.walkTo(Coordinate(95, 100)))
     } yield {
       done = true

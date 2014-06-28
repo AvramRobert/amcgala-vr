@@ -24,7 +24,7 @@ object BuildingService {
 
   case class Test(string: String)
 
-  case class JobDone(coordinate: Coordinate)
+  case class JobDone(bot: Bot)
 
   class BuildBuildingTaskV1(building: String, start: Coordinate, end: Coordinate)(implicit val bot: Bot) extends MultiStepTask {
     override type Return = Coordinate
@@ -218,7 +218,7 @@ object BuildingService {
 
   }
 
-  class AlertNPCTask(ref: ActorRef, point: Coordinate)(implicit val bot: Bot) extends Task {
+  class AlertNPCTask(npc: Bot, coordinate: Coordinate)(implicit val bot: Bot) extends Task {
     override type Return = Unit.type
 
     override def isDone(): Boolean = done
@@ -226,7 +226,8 @@ object BuildingService {
     var done = false
 
     override def execute(): Future[Return] = Future[Return] {
-      ref ! JobDone(point)
+      npc.defineHome(coordinate)
+      npc.ref ! JobDone(npc)
       Unit
     }
   }
@@ -336,7 +337,8 @@ object BuildingService {
 
   def alertTownHall(building: String, npc: Bot)(implicit bot: Bot) = new AlertTownHallTask(building, bot)
 
-  def alertNPC(ref: ActorRef, home: Coordinate)(implicit bot: Bot) = new AlertNPCTask(ref, home)
+  def alertNPC(npc: Bot, coordinate: Coordinate)(implicit bot: Bot) = new AlertNPCTask(npc, coordinate)
 
   def findRoad()(implicit bot: Bot) = new FindRoadTask()
+
 }

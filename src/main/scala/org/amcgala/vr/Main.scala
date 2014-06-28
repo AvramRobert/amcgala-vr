@@ -36,9 +36,13 @@ class tempNPC extends BotAgent {
   brain registerIdleBehavior(new RandomWalkBehavior())
 
   override var customReceive: Receive = {
-    case BuildingService.JobDone(coordinate) =>
-      println("Bot alerted")
-
+    case BuildingService.JobDone(npc) =>
+        println("Bot alerterd")
+        for {
+          home <- npc.home
+        }yield {
+          println("My Home is: " + home)
+        }
   }
 }
 
@@ -53,8 +57,6 @@ class GoAndGet() (implicit val bot: Bot) extends Behavior {
       loc <- bot.townHall
       q <- bot.executeTask(LocationService.walkTo(Coordinate(loc.x, loc.y-1)))
       diner <- bot.executeTask(BuildingService.requestBuilding("diner", this.bot))
-      house <- bot.executeTask(BuildingService.requestBuilding("livingQuarter", this.bot))
-      hospital <- bot.executeTask(BuildingService.requestBuilding("hospital", this.bot))
     } yield {
       Unit
     }

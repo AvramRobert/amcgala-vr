@@ -34,6 +34,8 @@ object BotAgent {
   case object MoveForward
   case object MoveBackward
 
+  case object HomeAddressRequest
+
   case class MoveToPosition(position: Coordinate)
 
   case class ChangeVelocity(vel: Int)
@@ -49,6 +51,8 @@ object BotAgent {
   case class VicinityRequest(distance: Double)
 
   case class VisibleCellsRequest(distance: Double)
+
+  case class DefineHomeRequest(coordinate: Coordinate)
   case object TownHallLocationRequest
 
   case object TimeRequest
@@ -66,6 +70,7 @@ trait BotAgent extends Agent with Stash {
   implicit val ec = ExecutionContext.global
   implicit val me = Bot(self)
 
+  var owns = None: Option[Coordinate]
   var localPosition: Coordinate = Coordinate(0, 0)
   var currentPosition: Coordinate = Coordinate(0, 0)
   var knownCells = Map[Coordinate, Cell]()
@@ -129,9 +134,17 @@ trait BotAgent extends Agent with Stash {
     case TimeRequest ⇒
       sender() ! currentTime
     case TownHallLocationRequest => sender() ! thLocation
+
     case CellRequest =>
       val requester = sender()
       for(c <- cell()) requester ! c
+
+    case HomeAddressRequest =>
+      val requester = sender()
+      if(owns.nonEmpty) requester ! owns.get
+
+    case DefineHomeRequest(coordinate) =>
+      owns = Some(coordinate)
   }
 
   protected def needHandling: Receive = {
@@ -362,6 +375,10 @@ case class Bot(ref: ActorRef) {
     * @return
     */
   def currentTime = (ref ? TimeRequest).mapTo[Time]
+
+  def home = (ref ? HomeAddressRequest).mapTo[Coordinate]
+
+  def defineHome(coordinate: Coordinate) = ref ! DefineHomeRequest(coordinate)
 
   def vicinity(distance: Double): Future[VicinityReponse] = (ref ? VicinityRequest(distance)).mapTo[VicinityReponse]
 
