@@ -160,10 +160,10 @@ object BuildingService {
     }
 
     def scout(current: Coordinate, spectrum: Map[Coordinate, Cell]): Boolean = {
-      /*for (angle <- 0 to 90) {
+      for (angle <- 0 to 90) {
           determine(current, angle, spectrum)
       }
-      whole = whole.filter(p => p.size == scale().n * scale().m)*/
+      whole = whole.filter(p => p.size == scale().n * scale().m)
       whole.size != 0
     }
 
